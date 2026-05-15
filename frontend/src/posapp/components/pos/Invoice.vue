@@ -32,7 +32,7 @@
 					{{ __("Invoices saved as POS Invoices") }}
 				</v-alert>
 				<div class="invoice-sections">
-					<div class="invoice-top-grid">
+					<div class="invoice-customer-items-row">
 						<v-card flat class="invoice-section-card pos-themed-card">
 							<div class="invoice-section-heading">
 								<h3 class="invoice-section-heading__title">{{ __("Customer Details") }}</h3>
@@ -45,11 +45,28 @@
 							/>
 						</v-card>
 
-						<v-card
-							v-if="pos_profile.posa_use_delivery_charges"
-							flat
-							class="invoice-section-card pos-themed-card"
-						>
+						<v-card flat class="invoice-section-card pos-themed-card invoice-items-header-card">
+							<div class="invoice-section-heading invoice-section-heading--with-toolbar">
+								<h3 class="invoice-section-heading__title">{{ __("Invoice Items") }}</h3>
+								<InvoiceItemsActionToolbar
+									ref="actionToolbar"
+									:itemSearch="itemSearch"
+									:availableColumns="available_columns"
+									:selectedColumns="selected_columns"
+									@update:itemSearch="itemSearch = $event"
+									@update:selectedColumns="
+										(cols) => {
+											selected_columns = cols;
+											saveColumnPreferences();
+										}
+									"
+								/>
+							</div>
+						</v-card>
+					</div>
+
+					<div v-if="pos_profile.posa_use_delivery_charges" class="invoice-top-grid">
+						<v-card flat class="invoice-section-card pos-themed-card">
 							<div class="invoice-section-heading">
 								<h3 class="invoice-section-heading__title">{{ __("Delivery Charges") }}</h3>
 							</div>
@@ -144,24 +161,7 @@
 					</div>
 
 					<v-card flat class="invoice-section-card invoice-items-card pos-themed-card">
-						<div class="invoice-section-heading">
-							<h3 class="invoice-section-heading__title">{{ __("Invoice Items") }}</h3>
-						</div>
 						<div class="items-table-wrapper">
-							<InvoiceItemsActionToolbar
-								ref="actionToolbar"
-								:itemSearch="itemSearch"
-								:availableColumns="available_columns"
-								:selectedColumns="selected_columns"
-								@update:itemSearch="itemSearch = $event"
-								@update:selectedColumns="
-									(cols) => {
-										selected_columns = cols;
-										saveColumnPreferences();
-									}
-								"
-							/>
-
 							<ItemsTable
 								ref="itemsTableRef"
 								:headers="items_headers"
@@ -1243,6 +1243,38 @@ export default {
 	align-items: stretch;
 }
 
+.invoice-customer-items-row {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--dynamic-sm);
+	flex: 0 0 auto;
+	align-items: stretch;
+}
+
+.invoice-items-header-card {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.invoice-section-heading--with-toolbar {
+	display: flex;
+	align-items: center;
+	gap: var(--dynamic-sm);
+	flex-wrap: wrap;
+	padding: 14px 16px;
+}
+
+.invoice-section-heading--with-toolbar .invoice-section-heading__title {
+	flex: 0 0 auto;
+}
+
+.invoice-section-heading--with-toolbar :deep(.column-selector-container) {
+	flex: 1 1 auto;
+	min-width: 0;
+	margin: 0;
+}
+
 .invoice-top-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1283,7 +1315,7 @@ export default {
 	padding-bottom: var(--dynamic-xs);
 	display: flex;
 	flex-direction: column;
-	flex: 0 0 auto;
+	flex: 1 1 auto;
 	min-height: 320px;
 	overflow: visible;
 }
@@ -1320,6 +1352,10 @@ export default {
 	}
 
 	.invoice-top-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.invoice-customer-items-row {
 		grid-template-columns: 1fr;
 	}
 
@@ -1371,6 +1407,10 @@ export default {
 		grid-template-columns: 1fr;
 	}
 
+	.invoice-customer-items-row {
+		grid-template-columns: 1fr;
+	}
+
 	.items-table-wrapper {
 		/* Adjust for smallest screens */
 		margin-left: 0;
@@ -1419,7 +1459,7 @@ export default {
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
-	flex: 0 0 auto;
+	flex: 1 1 auto;
 	min-height: 320px;
 	min-width: 0;
 }
@@ -1432,18 +1472,8 @@ export default {
 }
 
 :deep(.items-table-wrapper .posa-items-table-container) {
-	flex: 0 0 auto;
+	flex: 1 1 auto;
 	min-height: 320px;
-	height: auto !important;
-	max-height: none !important;
-	overflow: visible !important;
-}
-
-:deep(.items-table-wrapper .posa-cart-table),
-:deep(.items-table-wrapper .v-data-table__wrapper),
-:deep(.items-table-wrapper .v-table__wrapper) {
-	height: auto !important;
-	max-height: none !important;
 }
 
 /* New styles for improved column switches */
